@@ -1,0 +1,61 @@
+#!/usr/bin/env fish
+
+set file_loc (dirname (status --current-filename))
+
+function codespaces_setup
+
+    # directory listings
+    set codespace_config_dir "$file_loc/dotfiles/codespaces/.config"
+    set codespace_config_list (command ls $codespace_config_dir -1)
+    set codespace_home_dir "$file_loc/dotfiles/codespace/home"
+
+    # dotfile copying
+
+    # ~/.config/
+    for i in $codespace_config_list
+        mkdir -p ~/.config/$i
+        cp $codespace_config_dir/$i/* ~/.config/$i/
+    end
+
+    # ~
+    cp -r $codespace_home_dir/* ~
+
+
+end
+
+function arch_linux_setup
+    echo "todo: arch-linux-script"
+end
+function kali_linux_setup
+    echo "todo: kali-linux-config"
+end
+function help_page_text
+    echo "todo: help-page"
+end
+
+
+function Installer --argument-names cmd
+
+    switch "$cmd"
+        # detect
+        case "" -A --auto auto
+            if string match -q "codespace*" "$hostname"
+                codespaces_setup
+            else if test -e /etc/arch-release
+                arch_linux_setup
+            end
+        # gh-codespace
+        case -s --spaces spaces
+            codespaces_setup
+        # arch-linux
+        case -a --arch arch
+            arch_linux_setup
+        # kali-linux
+        case -k --kali kali
+            kali_linux_setup
+        # help page -> mainly for debugging
+        case -h --help
+            help_page_text
+    end
+end
+Installer $argv
